@@ -31,6 +31,7 @@ public class MiniTLV {
 
 	public static final byte EXTENTED_BYTES = 0x00;
 	private static final String TYPE_ERROR = "Type must be represented as 1, 2 or 4 bytes.";
+	private static final String INPUT_ERROR = "Input cannot be null.";
 	private static final Logger LOGGER = Logger.getLogger(MiniTLV.class.getName());
 	private static final Charset CHARSET = StandardCharsets.UTF_8;
 	
@@ -60,7 +61,7 @@ public class MiniTLV {
 		 * Prevent bad TLV
 		 */
 		if (tlv == null || tlv.length < TLV_MINLENGTH) {
-			return null;
+			throw new IllegalArgumentException(INPUT_ERROR);
 		}
 		
 		/*
@@ -114,6 +115,42 @@ public class MiniTLV {
 	}
 	
 	/**
+	 * Read the Type-Length-Value bytes and extract value for the given byte type.
+	 * @see #parse(byte[], byte...)
+	 * 
+	 * @param tlv bytes to read
+	 * @param type to search for
+	 * @return value for the given type
+	 */
+	public static String parse(byte[] tlv, byte type) {
+		return parse(tlv, new byte[]{type});
+	}
+	
+	/**
+	 * Read the Type-Length-Value bytes and extract value for the given short type.
+	 * @see #parse(byte[], byte...)
+	 * 
+	 * @param tlv bytes to read
+	 * @param type to search for
+	 * @return value for the given type
+	 */
+	public static String parse(byte[] tlv, short type) {
+		return parse(tlv, convertToBytes(type));
+	}
+	
+	/**
+	 * Read the Type-Length-Value bytes and extract value for the given integer type.
+	 * @see #parse(byte[], byte...)
+	 * 
+	 * @param tlv bytes to read
+	 * @param type to search for
+	 * @return value for the given type
+	 */
+	public static String parse(byte[] tlv, int type) {
+		return parse(tlv, convertToBytes(type));
+	}
+	
+	/**
 	 * Write a Type-Length-Value for the given type and integer value.
 	 * @see #serialize(String, byte...)
 	 * 
@@ -123,6 +160,42 @@ public class MiniTLV {
 	 */
 	public static byte[] serialize(int value, byte... type) {
 		return serialize(String.valueOf(value), type);
+	}
+	
+	/**
+	 * Write a Type-Length-Value for the given byte type and integer value.
+	 * @see #serialize(String, byte...)
+	 * 
+	 * @param value for the given type
+	 * @param type to write
+	 * @return byte in Type-Length-Value representation
+	 */
+	public static byte[] serialize(int value, byte type) {
+		return serialize(String.valueOf(value), new byte[]{type});
+	}
+	
+	/**
+	 * Write a Type-Length-Value for the given short type and integer value.
+	 * @see #serialize(String, byte...)
+	 * 
+	 * @param value for the given type
+	 * @param type to write
+	 * @return byte in Type-Length-Value representation
+	 */
+	public static byte[] serialize(int value, short type) {
+		return serialize(String.valueOf(value), convertToBytes(type));
+	}
+	
+	/**
+	 * Write a Type-Length-Value for the given integer type and integer value.
+	 * @see #serialize(String, byte...)
+	 * 
+	 * @param value for the given type
+	 * @param type to write
+	 * @return byte in Type-Length-Value representation
+	 */
+	public static byte[] serialize(int value, int type) {
+		return serialize(String.valueOf(value), convertToBytes(type));
 	}
 	
 	/**
@@ -144,7 +217,7 @@ public class MiniTLV {
 		 * Prevent bad value
 		 */
 		if (value == null) {
-			return null;
+			throw new IllegalArgumentException(INPUT_ERROR);
 		}
 		
 		/*
@@ -183,6 +256,45 @@ public class MiniTLV {
 		buffer.put(length);
 		buffer.put(bytes);
 		return buffer.array();
+	}
+	
+	/**
+	 * Write a Type-Length-Value for the given byte type and value,
+	 * and store them as 1, 2 or 4-bytes.
+	 * @see #serialize(String, byte...)
+	 * 
+	 * @param value for the given type
+	 * @param type to write
+	 * @return byte in Type-Length-Value representation
+	 */
+	public static byte[] serialize(String value, byte type) {
+		return serialize(value, new byte[]{type});
+	}
+	
+	/**
+	 * Write a Type-Length-Value for the given short type and value,
+	 * and store them as 1, 2 or 4-bytes.
+	 * @see #serialize(String, byte...)
+	 * 
+	 * @param value for the given type
+	 * @param type to write
+	 * @return byte in Type-Length-Value representation
+	 */
+	public static byte[] serialize(String value, short type) {
+		return serialize(value, convertToBytes(type));
+	}
+	
+	/**
+	 * Write a Type-Length-Value for the given integer type and value,
+	 * and store them as 1, 2 or 4-bytes.
+	 * @see #serialize(String, byte...)
+	 * 
+	 * @param value for the given type
+	 * @param type to write
+	 * @return byte in Type-Length-Value representation
+	 */
+	public static byte[] serialize(String value, int type) {
+		return serialize(value, convertToBytes(type));
 	}
 	
 	/**
@@ -299,6 +411,18 @@ public class MiniTLV {
 			}
 		}
 		throw new StreamCorruptedException();
+	}
+	
+	private static byte[] convertToBytes(short value) {
+		ByteBuffer buffer = ByteBuffer.allocate(SHORT_SIZE);
+		buffer.putShort(value);
+		return buffer.array();
+	}
+	
+	private static byte[] convertToBytes(int value) {
+		ByteBuffer buffer = ByteBuffer.allocate(INT_SIZE);
+		buffer.putInt(value);
+		return buffer.array();
 	}
 
 }
