@@ -31,7 +31,9 @@ public class MiniTLVTest {
 		System.out.println("value = " + value);
 		ByteBuffer buffer = ByteBuffer.allocate(BUFFER_MAX);
 		buffer.put(MiniTLV.serialize(value, (byte)0x01));
-		byte[] tlv = MiniTLV.minimalBytes(buffer);
+		buffer.flip();
+		byte[] tlv = new byte[buffer.limit()];
+		buffer.get(tlv, 0, buffer.limit());
 		System.out.println("tlv = " + DatatypeConverter.printHexBinary(tlv));
 		
 		String result = MiniTLV.parse(tlv, (byte)0x01);
@@ -47,7 +49,9 @@ public class MiniTLVTest {
 		System.out.println("value = " + value);
 		ByteBuffer buffer = ByteBuffer.allocate(BUFFER_MAX);
 		buffer.put(MiniTLV.serialize(value, (byte)0x01, (byte)0x01));
-		byte[] tlv = MiniTLV.minimalBytes(buffer);
+		buffer.flip();
+		byte[] tlv = new byte[buffer.limit()];
+		buffer.get(tlv, 0, buffer.limit());
 		System.out.println("tlv = " + DatatypeConverter.printHexBinary(tlv));
 		
 		String result = MiniTLV.parse(tlv, (byte)0x01, (byte)0x01);
@@ -63,7 +67,9 @@ public class MiniTLVTest {
 		System.out.println("value = " + value);
 		ByteBuffer buffer = ByteBuffer.allocate(BUFFER_MAX);
 		buffer.put(MiniTLV.serialize(value, (byte)0x01, (byte)0x01, (byte)0x01, (byte)0x01));
-		byte[] tlv = MiniTLV.minimalBytes(buffer);
+		buffer.flip();
+		byte[] tlv = new byte[buffer.limit()];
+		buffer.get(tlv, 0, buffer.limit());
 		System.out.println("tlv = " + DatatypeConverter.printHexBinary(tlv));
 		
 		String result = MiniTLV.parse(tlv, (byte)0x01, (byte)0x01, (byte)0x01, (byte)0x01);
@@ -80,7 +86,9 @@ public class MiniTLVTest {
 		System.out.println("value = " + value);
 		ByteBuffer buffer = ByteBuffer.allocate(BUFFER_MAX);
 		buffer.put(MiniTLV.serialize(value, (short) type));
-		byte[] tlv = MiniTLV.minimalBytes(buffer);
+		buffer.flip();
+		byte[] tlv = new byte[buffer.limit()];
+		buffer.get(tlv, 0, buffer.limit());
 		System.out.println("tlv = " + DatatypeConverter.printHexBinary(tlv));
 		
 		String result = MiniTLV.parse(tlv, (short) type);
@@ -97,7 +105,9 @@ public class MiniTLVTest {
 		System.out.println("value = " + value);
 		ByteBuffer buffer = ByteBuffer.allocate(BUFFER_MAX);
 		buffer.put(MiniTLV.serialize(value, type));
-		byte[] tlv = MiniTLV.minimalBytes(buffer);
+		buffer.flip();
+		byte[] tlv = new byte[buffer.limit()];
+		buffer.get(tlv, 0, buffer.limit());
 		System.out.println("tlv = " + DatatypeConverter.printHexBinary(tlv));
 		
 		String result = MiniTLV.parse(tlv, type);
@@ -115,7 +125,9 @@ public class MiniTLVTest {
 		ByteBuffer buffer = ByteBuffer.allocate(BUFFER_MAX);
 		buffer.put(MiniTLV.serialize(value, type));
 
-		byte[] unCompressedTlv = MiniTLV.minimalBytes(buffer);
+		buffer.flip();
+		byte[] unCompressedTlv = new byte[buffer.limit()];
+		buffer.get(unCompressedTlv, 0, buffer.limit());
 		System.out.println("tlv = " + DatatypeConverter.printHexBinary(unCompressedTlv));
 		System.out.println("original: " + unCompressedTlv.length + "b");
 		byte[] compressedTlv = MiniTLV.deflate(unCompressedTlv, 512);

@@ -357,7 +357,7 @@ public class MiniTLV {
 	 * @param buffer
 	 * @return byte array
 	 */
-	public static byte[] minimalBytes(ByteBuffer buffer) {
+	private static byte[] minimalBytes(ByteBuffer buffer) {
 		buffer.flip();
 		byte[] result = new byte[buffer.limit()];
 		buffer.get(result, 0, buffer.limit());
