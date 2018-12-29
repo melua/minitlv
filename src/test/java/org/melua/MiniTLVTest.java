@@ -2,6 +2,7 @@ package org.melua;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.zip.DataFormatException;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -100,6 +101,28 @@ public class MiniTLVTest {
 		System.out.println("tlv = " + DatatypeConverter.printHexBinary(tlv));
 		
 		String result = MiniTLV.parse(tlv, type);
+		System.out.println("decoded tlv = " + result);
+
+		Assert.assertNotNull(result);
+		Assert.assertEquals(value, result);
+	}
+
+	@Test
+	public void encDec6() throws IOException, DataFormatException {
+		System.out.println("type = " + type);
+		System.out.println("length = " + value.length());
+		System.out.println("value = " + value);
+		ByteBuffer buffer = ByteBuffer.allocate(BUFFER_MAX);
+		buffer.put(MiniTLV.serialize(value, type));
+
+		byte[] unCompressedTlv = MiniTLV.minimalBytes(buffer);
+		System.out.println("tlv = " + DatatypeConverter.printHexBinary(unCompressedTlv));
+		System.out.println("original: " + unCompressedTlv.length + "b");
+		byte[] compressedTlv = MiniTLV.deflate(unCompressedTlv, 512);
+		System.out.println("compressed: " + compressedTlv.length + "b");
+		System.out.println("rate: " + (compressedTlv.length*100)/unCompressedTlv.length + "%");
+
+		String result = MiniTLV.parse(MiniTLV.inflate(compressedTlv, 512), type);
 		System.out.println("decoded tlv = " + result);
 
 		Assert.assertNotNull(result);

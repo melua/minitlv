@@ -17,6 +17,7 @@ package org.melua;
  */
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.StreamCorruptedException;
@@ -24,6 +25,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 public class MiniTLV {
 
@@ -433,5 +437,51 @@ public class MiniTLV {
 		buffer.putInt(value);
 		return buffer.array();
 	}
+
+	/**
+	 * Compress the given byte array
+	 * @param data to compress
+	 * @param bufferSize in bytes
+	 * @return compressed data
+	 * @throws IOException
+	 */
+	public static byte[] deflate(byte[] data, int bufferSize) throws IOException {
+		Deflater deflater = new Deflater();
+		deflater.setInput(data);
+
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length)) {
+			deflater.finish();
+
+			byte[] buffer = new byte[bufferSize];
+			while (!deflater.finished()) {
+				int count = deflater.deflate(buffer);
+				outputStream.write(buffer, 0, count);
+			}
+			return outputStream.toByteArray();
+		}
+	}
+
+	/**
+	 * Decompress the given byte array
+	 * @param data to decompress
+	 * @param bufferSize in bytes
+	 * @return decompressed data
+	 * @throws IOException
+	 * @throws DataFormatException
+	 */
+    public static byte[] inflate(byte[] data, int bufferSize) throws IOException, DataFormatException {
+		Inflater inflater = new Inflater();
+		inflater.setInput(data);
+
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length)) {
+
+			byte[] buffer = new byte[bufferSize];
+			while (!inflater.finished()) {
+				int count = inflater.inflate(buffer);
+				outputStream.write(buffer, 0, count);
+			}
+			return outputStream.toByteArray();
+		}
+    }
 
 }
