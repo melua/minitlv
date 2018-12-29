@@ -1,5 +1,6 @@
 package org.melua;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import javax.xml.bind.DatatypeConverter;
@@ -24,7 +25,7 @@ public class MiniTLVTest {
 	}
 	
 	@Test
-	public void encDec1() {
+	public void encDec1() throws IOException {
 		System.out.println("length = " + value.length());
 		System.out.println("value = " + value);
 		ByteBuffer buffer = ByteBuffer.allocate(BUFFER_MAX);
@@ -40,7 +41,7 @@ public class MiniTLVTest {
 	}
 	
 	@Test
-	public void encDec2() {
+	public void encDec2() throws IOException {
 		System.out.println("length = " + value.length());
 		System.out.println("value = " + value);
 		ByteBuffer buffer = ByteBuffer.allocate(BUFFER_MAX);
@@ -56,7 +57,7 @@ public class MiniTLVTest {
 	}
 	
 	@Test
-	public void encDec3() {
+	public void encDec3() throws IOException {
 		System.out.println("length = " + value.length());
 		System.out.println("value = " + value);
 		ByteBuffer buffer = ByteBuffer.allocate(BUFFER_MAX);
@@ -72,7 +73,7 @@ public class MiniTLVTest {
 	}
 	
 	@Test
-	public void encDec4() {
+	public void encDec4() throws IOException {
 		System.out.println("type = " + type);
 		System.out.println("length = " + value.length());
 		System.out.println("value = " + value);
@@ -89,7 +90,7 @@ public class MiniTLVTest {
 	}
 	
 	@Test
-	public void encDec5() {
+	public void encDec5() throws IOException {
 		System.out.println("type = " + type);
 		System.out.println("length = " + value.length());
 		System.out.println("value = " + value);

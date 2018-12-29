@@ -24,18 +24,16 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MiniTLV {
 
 	public static final byte EXTENTED_BYTES = 0x00;
 	private static final String TYPE_ERROR = "Type must be represented as 1, 2 or 4 bytes.";
 	private static final String INPUT_ERROR = "Input cannot be null.";
-	private static final Logger LOGGER = Logger.getLogger(MiniTLV.class.getName());
 	private static final Charset CHARSET = StandardCharsets.UTF_8;
 	
-	private static final int TLV_MINLENGTH = 3;
+	private static final int TLV_MINSIZE = 3;
+	private static final int EXT_MAXSIZE = 2;
 	
 	private static final int UBYTE_MAXVALUE = 255;
 	private static final int USHORT_MAXVALUE = 65535;
@@ -54,13 +52,14 @@ public class MiniTLV {
 	 * @param tlv bytes to read
 	 * @param type to search for
 	 * @return value for the given type
+	 * @throws IOException
 	 */
-	public static String parse(byte[] tlv, byte... type) {
+	public static String parse(byte[] tlv, byte... type) throws IOException {
 
 		/*
 		 * Prevent bad TLV
 		 */
-		if (tlv == null || tlv.length < TLV_MINLENGTH) {
+		if (tlv == null || tlv.length < TLV_MINSIZE) {
 			throw new IllegalArgumentException(INPUT_ERROR);
 		}
 		
@@ -78,7 +77,7 @@ public class MiniTLV {
 
 		try (DataInputStream stream = new DataInputStream(new ByteArrayInputStream(tlv))) {
 
-			while(stream.available() >= TLV_MINLENGTH) {
+			while(stream.available() >= TLV_MINSIZE) {
 				
 				/*
 				 * Read 1st byte or next 2, 4-bytes if extended
@@ -103,9 +102,6 @@ public class MiniTLV {
 					}
 				}
 			}
-			
-		} catch (IOException ioex) {
-			LOGGER.log(Level.WARNING, "Error while parsing TLV: {0}", ioex.getMessage());
 		}
 
 		/*
@@ -121,8 +117,9 @@ public class MiniTLV {
 	 * @param tlv bytes to read
 	 * @param type to search for
 	 * @return value for the given type
+	 * @throws IOException
 	 */
-	public static String parse(byte[] tlv, byte type) {
+	public static String parse(byte[] tlv, byte type) throws IOException {
 		return parse(tlv, new byte[]{type});
 	}
 	
@@ -133,8 +130,9 @@ public class MiniTLV {
 	 * @param tlv bytes to read
 	 * @param type to search for
 	 * @return value for the given type
+	 * @throws IOException
 	 */
-	public static String parse(byte[] tlv, short type) {
+	public static String parse(byte[] tlv, short type) throws IOException {
 		return parse(tlv, convertToBytes(type));
 	}
 	
@@ -145,8 +143,9 @@ public class MiniTLV {
 	 * @param tlv bytes to read
 	 * @param type to search for
 	 * @return value for the given type
+	 * @throws IOException
 	 */
-	public static String parse(byte[] tlv, int type) {
+	public static String parse(byte[] tlv, int type) throws IOException {
 		return parse(tlv, convertToBytes(type));
 	}
 	
@@ -235,7 +234,7 @@ public class MiniTLV {
 		/*
 		 * Prepare type and add extended marks if necessary
 		 */
-		ByteBuffer tbuffer = ByteBuffer.allocate(6);
+		ByteBuffer tbuffer = ByteBuffer.allocate(EXT_MAXSIZE + INT_SIZE);
 		addExtendedType(tbuffer, type);
 		tbuffer.put(type);
 		byte[] givenType = minimalBytes(tbuffer);
@@ -243,7 +242,7 @@ public class MiniTLV {
 		/*
 		 * Prepare length and add extended marks if necessary
 		 */
-		ByteBuffer lbuffer = ByteBuffer.allocate(6);
+		ByteBuffer lbuffer = ByteBuffer.allocate(EXT_MAXSIZE + INT_SIZE);
 		addExtendedLength(lbuffer, bytes.length);
 		lbuffer.put(minimalBytes(minimalBuffer(bytes.length)));
 		byte[] length = minimalBytes(lbuffer);
@@ -413,12 +412,22 @@ public class MiniTLV {
 		throw new StreamCorruptedException();
 	}
 	
+	/**
+	 * Convert short to 2-bytes array.
+	 * @param value to convert
+	 * @return byte array
+	 */
 	private static byte[] convertToBytes(short value) {
 		ByteBuffer buffer = ByteBuffer.allocate(SHORT_SIZE);
 		buffer.putShort(value);
 		return buffer.array();
 	}
 	
+	/**
+	 * Convert integer to 4-bytes array.
+	 * @param value to convert
+	 * @return byte array
+	 */
 	private static byte[] convertToBytes(int value) {
 		ByteBuffer buffer = ByteBuffer.allocate(INT_SIZE);
 		buffer.putInt(value);
