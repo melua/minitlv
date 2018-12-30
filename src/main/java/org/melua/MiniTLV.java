@@ -25,6 +25,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -116,7 +118,6 @@ public class MiniTLV {
 	
 	/**
 	 * Read the Type-Length-Value bytes and extract value for the given byte type.
-	 * @see #parse(byte[], byte...)
 	 * 
 	 * @param tlv bytes to read
 	 * @param type to search for
@@ -129,7 +130,6 @@ public class MiniTLV {
 	
 	/**
 	 * Read the Type-Length-Value bytes and extract value for the given short type.
-	 * @see #parse(byte[], byte...)
 	 * 
 	 * @param tlv bytes to read
 	 * @param type to search for
@@ -142,7 +142,6 @@ public class MiniTLV {
 	
 	/**
 	 * Read the Type-Length-Value bytes and extract value for the given integer type.
-	 * @see #parse(byte[], byte...)
 	 * 
 	 * @param tlv bytes to read
 	 * @param type to search for
@@ -155,11 +154,10 @@ public class MiniTLV {
 	
 	/**
 	 * Write a Type-Length-Value for the given type and integer value.
-	 * @see #serialize(String, byte...)
 	 * 
 	 * @param value for the given type
 	 * @param type to write
-	 * @return byte in Type-Length-Value representation
+	 * @return bytes in Type-Length-Value representation
 	 */
 	public static byte[] serialize(int value, byte... type) {
 		return serialize(String.valueOf(value), type);
@@ -167,11 +165,10 @@ public class MiniTLV {
 	
 	/**
 	 * Write a Type-Length-Value for the given byte type and integer value.
-	 * @see #serialize(String, byte...)
 	 * 
 	 * @param value for the given type
 	 * @param type to write
-	 * @return byte in Type-Length-Value representation
+	 * @return bytes in Type-Length-Value representation
 	 */
 	public static byte[] serialize(int value, byte type) {
 		return serialize(String.valueOf(value), new byte[]{type});
@@ -179,11 +176,10 @@ public class MiniTLV {
 	
 	/**
 	 * Write a Type-Length-Value for the given short type and integer value.
-	 * @see #serialize(String, byte...)
 	 * 
 	 * @param value for the given type
 	 * @param type to write
-	 * @return byte in Type-Length-Value representation
+	 * @return bytes in Type-Length-Value representation
 	 */
 	public static byte[] serialize(int value, short type) {
 		return serialize(String.valueOf(value), convertToBytes(type));
@@ -191,11 +187,10 @@ public class MiniTLV {
 	
 	/**
 	 * Write a Type-Length-Value for the given integer type and integer value.
-	 * @see #serialize(String, byte...)
 	 * 
 	 * @param value for the given type
 	 * @param type to write
-	 * @return byte in Type-Length-Value representation
+	 * @return bytes in Type-Length-Value representation
 	 */
 	public static byte[] serialize(int value, int type) {
 		return serialize(String.valueOf(value), convertToBytes(type));
@@ -212,7 +207,7 @@ public class MiniTLV {
 	 * 
 	 * @param value for the given type
 	 * @param type to write
-	 * @return byte in Type-Length-Value representation
+	 * @return bytes in Type-Length-Value representation
 	 */
 	public static byte[] serialize(String value, byte... type) {
 		
@@ -264,11 +259,10 @@ public class MiniTLV {
 	/**
 	 * Write a Type-Length-Value for the given byte type and value,
 	 * and store them as 1, 2 or 4-bytes.
-	 * @see #serialize(String, byte...)
 	 * 
 	 * @param value for the given type
 	 * @param type to write
-	 * @return byte in Type-Length-Value representation
+	 * @return bytes in Type-Length-Value representation
 	 */
 	public static byte[] serialize(String value, byte type) {
 		return serialize(value, new byte[]{type});
@@ -277,11 +271,10 @@ public class MiniTLV {
 	/**
 	 * Write a Type-Length-Value for the given short type and value,
 	 * and store them as 1, 2 or 4-bytes.
-	 * @see #serialize(String, byte...)
 	 * 
 	 * @param value for the given type
 	 * @param type to write
-	 * @return byte in Type-Length-Value representation
+	 * @return bytes in Type-Length-Value representation
 	 */
 	public static byte[] serialize(String value, short type) {
 		return serialize(value, convertToBytes(type));
@@ -290,16 +283,34 @@ public class MiniTLV {
 	/**
 	 * Write a Type-Length-Value for the given integer type and value,
 	 * and store them as 1, 2 or 4-bytes.
-	 * @see #serialize(String, byte...)
 	 * 
 	 * @param value for the given type
 	 * @param type to write
-	 * @return byte in Type-Length-Value representation
+	 * @return bytes in Type-Length-Value representation
 	 */
 	public static byte[] serialize(String value, int type) {
 		return serialize(value, convertToBytes(type));
 	}
 	
+	/**
+	 * Write a Type-Length-Value for the given map of types and values,
+	 * and store them as 1, 2 or 4-bytes.
+	 * @see #deflate(byte[], int)
+	 *
+	 * @param map of bytes and associated values
+	 * @param bufferSize in bytes
+	 * @return bytes in Type-Length-Value representation
+	 */
+	public static byte[] serialize(Map<byte[], Object> map, int bufferSize) {
+		ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+		for (Entry<byte[], Object> entry : map.entrySet()) {
+			if (entry.getValue() != null) {
+				buffer.put(serialize(String.valueOf(entry.getValue()), entry.getKey()));
+			}
+		}
+		return minimalBytes(buffer);
+	}
+
 	/**
 	 * Automatically add extra {@link #EXTENTED_BYTES} for 2 and 4-bytes type.
 	 * @param buffer to append
