@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.DataFormatException;
@@ -47,6 +48,52 @@ public class MiniTLV {
 	private static final int BYTE_SIZE = 1;
 	private static final int SHORT_SIZE = 2;
 	private static final int INT_SIZE = 4;
+
+	/**
+	 * Read the Type-Length-Value bytes and extract types and associated values
+	 *
+	 * @param tlv bytes to read
+	 * @return values
+	 * @throws IOException
+	 */
+	public static Map<Integer, String> parseAll(byte[] tlv) throws IOException {
+
+		/*
+		 * Prevent bad TLV
+		 */
+		if (tlv == null || tlv.length < TLV_MINSIZE) {
+			throw new IllegalArgumentException(INPUT_ERROR);
+		}
+
+		Map<Integer, String> map = new HashMap<>();
+
+		try (DataInputStream stream = new DataInputStream(new ByteArrayInputStream(tlv))) {
+
+			while(stream.available() >= TLV_MINSIZE) {
+
+				/*
+				 * Read 1st byte or next 2, 4-bytes if extended
+				 */
+				int type = convertToInt(minimalBytes(getBuffer(stream)));
+
+				/*
+				 * Read 1st byte or next 2, 4-bytes if extended
+				 */
+				int length = convertToInt(minimalBytes(getBuffer(stream)));
+
+				/*
+				 * Read or skip value
+				 */
+				if (stream.available() >= length) {
+					byte[] value = new byte[length];
+					stream.readFully(value);
+					map.put(type, new String(value, CHARSET));
+				}
+			}
+		}
+
+		return map;
+	}
 
 	/**
 	 * Read the Type-Length-Value bytes and extract value for the given 1, 2 or 4-bytes type.
@@ -301,7 +348,7 @@ public class MiniTLV {
 	 * @param bufferSize in bytes
 	 * @return bytes in Type-Length-Value representation
 	 */
-	public static byte[] serialize(Map<byte[], Object> map, int bufferSize) {
+	public static byte[] serializeAll(Map<byte[], Object> map, int bufferSize) {
 		ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
 		for (Entry<byte[], Object> entry : map.entrySet()) {
 			if (entry.getValue() != null) {

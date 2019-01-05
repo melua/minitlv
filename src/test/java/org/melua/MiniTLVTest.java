@@ -1,7 +1,11 @@
 package org.melua;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.zip.DataFormatException;
 
 import javax.xml.bind.DatatypeConverter;
@@ -139,6 +143,31 @@ public class MiniTLVTest {
 
 		Assert.assertNotNull(result);
 		Assert.assertEquals(value, result);
+	}
+
+	@Test
+	public void encDec7() throws IOException, DataFormatException {
+		Map<byte[], Object> input = new HashMap<>();
+		input.put(new byte[] {0x01, 0x01}, RandomStringUtils.random(RandomUtils.nextInt(100, 500)));
+		input.put(new byte[] {0x02, 0x02}, RandomStringUtils.random(RandomUtils.nextInt(100, 500)));
+
+		ByteBuffer buffer = ByteBuffer.allocate(BUFFER_MAX);
+		buffer.put(MiniTLV.serializeAll(input, BUFFER_MAX));
+		buffer.flip();
+		byte[] tlv = new byte[buffer.limit()];
+		buffer.get(tlv, 0, buffer.limit());
+
+		Map<Integer, String> output = MiniTLV.parseAll(tlv);
+
+		Assert.assertEquals(input.size(), output.size());
+
+		for (Entry<byte[], Object> entry : input.entrySet()) {
+			int type = new BigInteger(entry.getKey()).intValue();
+			Assert.assertTrue(output.containsKey(type));
+			System.out.println(DatatypeConverter.printHexBinary(entry.getKey()) + " : " + output.get(type));
+			Assert.assertEquals(String.valueOf(entry.getValue()), output.get(type));
+		}
+
 	}
 
 }
