@@ -10,6 +10,6 @@ Method | Description
 *serialize* | Write a Type-Length-Value for the given type and value, and store them as 1, 2 or 4-bytes.
 *parse* | Read the Type-Length-Value bytes and extract value for the given 1, 2 or 4-bytes type.
 *serializeAll* | Write a Type-Length-Value for the given types and values, and store them as 1, 2 or 4-bytes.
-*parseAll* | Read the Type-Length-Value bytes and extract 1, 2 or 4-bytes types and associated values.
+*parseAll* | Read the Type-Length-Value bytes and extract integer types and associated values.
 *deflate* | Compress the given byte array.
 *inflate* | Decompress the given byte array.
