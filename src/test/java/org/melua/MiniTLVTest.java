@@ -170,4 +170,30 @@ public class MiniTLVTest {
 
 	}
 
+	@Test
+	public void encDec8() throws IOException, DataFormatException {
+		Map<byte[], Object> input = new HashMap<>();
+		input.put(new byte[] {0x01, 0x01}, RandomStringUtils.random(RandomUtils.nextInt(100, 500)));
+		input.put(new byte[] {0x01, 0x01}, RandomStringUtils.random(RandomUtils.nextInt(100, 500)));
+
+		ByteBuffer buffer = ByteBuffer.allocate(BUFFER_MAX);
+		buffer.put(MiniTLV.serializeAll(input, BUFFER_MAX));
+		buffer.flip();
+		byte[] tlv = new byte[buffer.limit()];
+		buffer.get(tlv, 0, buffer.limit());
+
+		System.out.println("tlv = " + DatatypeConverter.printHexBinary(tlv));
+
+		String value = MiniTLV.parse(tlv, (byte)0x01, (byte)0x01);
+		System.out.println("value = " + value);
+		Assert.assertNotNull(value);
+
+		Map<Integer, String> output = MiniTLV.parseAll(tlv);
+		for (String val : output.values()) {
+			System.out.println("value = " + val);
+			Assert.assertEquals(value,String.valueOf(val));
+		}
+
+	}
+
 }

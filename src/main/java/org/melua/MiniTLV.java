@@ -85,9 +85,13 @@ public class MiniTLV {
 				 * Read or skip value
 				 */
 				if (stream.available() >= length) {
-					byte[] value = new byte[length];
-					stream.readFully(value);
-					map.put(type, new String(value, CHARSET));
+					if (!map.containsKey(type)) {
+						byte[] value = new byte[length];
+						stream.readFully(value);
+						map.put(type, new String(value, CHARSET));
+					} else {
+						stream.skip(length);
+					}
 				}
 			}
 		}
@@ -512,8 +516,7 @@ public class MiniTLV {
 
 			byte[] buffer = new byte[bufferSize];
 			while (!deflater.finished()) {
-				int count = deflater.deflate(buffer);
-				outputStream.write(buffer, 0, count);
+				outputStream.write(buffer, 0, deflater.deflate(buffer));
 			}
 			return outputStream.toByteArray();
 		}
@@ -535,8 +538,7 @@ public class MiniTLV {
 
 			byte[] buffer = new byte[bufferSize];
 			while (!inflater.finished()) {
-				int count = inflater.inflate(buffer);
-				outputStream.write(buffer, 0, count);
+				outputStream.write(buffer, 0, inflater.inflate(buffer));
 			}
 			return outputStream.toByteArray();
 		}
