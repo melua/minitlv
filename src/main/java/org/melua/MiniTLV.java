@@ -25,12 +25,22 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import java.security.Key;
+import java.security.SecureRandom;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class MiniTLV {
 
@@ -39,15 +49,20 @@ public class MiniTLV {
 	private static final String INPUT_ERROR = "Input cannot be null.";
 	private static final Charset CHARSET = StandardCharsets.UTF_8;
 	
+	private static final int PBKDF2_ITERATIONS = 10_000;
+	private static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
+	private static final String AES_ALGORITHM = "AES";
+
 	private static final int TLV_MINSIZE = 3;
 	private static final int EXT_MAXSIZE = 2;
 	
 	private static final int UBYTE_MAXVALUE = 255;
-	private static final int USHORT_MAXVALUE = 65535;
+	private static final int USHORT_MAXVALUE = 65_535;
 	
 	private static final int BYTE_SIZE = 1;
 	private static final int SHORT_SIZE = 2;
 	private static final int INT_SIZE = 4;
+	private static final int SALT_SIZE = 32;
 
 	/**
 	 * Read the Type-Length-Value bytes and extract types and associated values
@@ -501,7 +516,20 @@ public class MiniTLV {
 	}
 
 	/**
-	 * Compress the given byte array
+	 * Computes the PBKDF2 hash.
+	 *
+	 * @param secret the password to hash
+	 * @param salt the salt
+	 * @return the PBDKF2 hash of the password
+	 * @throws GeneralSecurityException
+	 */
+	private static byte[] pbkdf2(String secret, byte[] salt) throws GeneralSecurityException {
+		KeySpec spec = new PBEKeySpec(secret.toCharArray(), salt, PBKDF2_ITERATIONS, SALT_SIZE*8);
+		return SecretKeyFactory.getInstance(PBKDF2_ALGORITHM).generateSecret(spec).getEncoded();
+	}
+
+	/**
+	 * Compress the given byte array.
 	 * @param data to compress
 	 * @param bufferSize in bytes
 	 * @return compressed data
@@ -523,7 +551,7 @@ public class MiniTLV {
 	}
 
 	/**
-	 * Decompress the given byte array
+	 * Decompress the given byte array.
 	 * @param data to decompress
 	 * @param bufferSize in bytes
 	 * @return decompressed data
@@ -542,6 +570,72 @@ public class MiniTLV {
 			}
 			return outputStream.toByteArray();
 		}
+    }
+
+    /**
+     * Encrypt data using given secret.
+     * @param data to encrypt
+     * @param secret used for encryption
+     * @return encrypted data with salt
+     * @throws GeneralSecurityException
+     */
+    public static byte[] encrypt(byte[] data, String secret) throws GeneralSecurityException {
+
+		/*
+		 * Generate random salt
+		 */
+		byte[] salt = new byte[SALT_SIZE];
+		SecureRandom random = new SecureRandom();
+		random.nextBytes(salt);
+
+		/*
+		 * Create cipher key with salt and password
+		 */
+		Key key = new SecretKeySpec(pbkdf2(secret, salt), AES_ALGORITHM);
+
+		/*
+		 * Encrypt data
+		 */
+		Cipher cipher = Cipher.getInstance(AES_ALGORITHM);
+		cipher.init(Cipher.ENCRYPT_MODE, key);
+		byte[] encrypted = cipher.doFinal(data);
+
+		/*
+		 * Return salt and encrypted data
+		 */
+		ByteBuffer result = ByteBuffer.allocate(salt.length + encrypted.length);
+		result.put(salt);
+		result.put(encrypted);
+
+		return result.array();
+    }
+
+    /**
+     * Decrypt data with salt using given secret.
+     * @param data to decrypt
+     * @param secret used for decryption
+     * @return decrypted data
+     * @throws GeneralSecurityException
+     */
+    public static byte[] decrypt(byte[] data, String secret) throws GeneralSecurityException {
+
+		/*
+		 * Extract salt
+		 */
+		byte[] salt = Arrays.copyOfRange(data, 0, SALT_SIZE);
+
+		/*
+		 * Create cipher key with salt and password
+		 */
+		Key key = new SecretKeySpec(pbkdf2(secret, salt), AES_ALGORITHM);
+
+		/*
+		 * Decrypt data
+		 */
+		Cipher cipher = Cipher.getInstance(AES_ALGORITHM);
+		cipher.init(Cipher.DECRYPT_MODE, key);
+
+		return cipher.doFinal(Arrays.copyOfRange(data, SALT_SIZE, data.length));
     }
 
 }

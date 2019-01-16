@@ -11,5 +11,7 @@ Method | Description
 *parse* | Read the Type-Length-Value bytes and extract value for the given 1, 2 or 4-bytes type.
 *serializeAll* | Write a Type-Length-Value for the given types and values, and store them as 1, 2 or 4-bytes.
 *parseAll* | Read the Type-Length-Value bytes and extract integer types and associated values.
-*deflate* | Compress the given byte array.
+*deflate* | Compress the given byte array with Deflate.
 *inflate* | Decompress the given byte array.
+*encrypt* | Encrypt the given byte array with AES-256.
+*decrypt* | Decrypt the given byte array.

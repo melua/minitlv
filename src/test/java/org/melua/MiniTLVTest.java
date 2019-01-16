@@ -3,6 +3,7 @@ package org.melua;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -194,6 +195,32 @@ public class MiniTLVTest {
 			Assert.assertEquals(value,String.valueOf(val));
 		}
 
+	}
+
+	@Test
+	public void encDec9() throws IOException, GeneralSecurityException {
+		System.out.println("length = " + value.length());
+		System.out.println("value = " + value);
+		ByteBuffer buffer = ByteBuffer.allocate(BUFFER_MAX);
+		buffer.put(MiniTLV.serialize(value, (byte)0x01));
+		buffer.flip();
+		byte[] tlv = new byte[buffer.limit()];
+		buffer.get(tlv, 0, buffer.limit());
+		System.out.println("tlv = " + DatatypeConverter.printHexBinary(tlv));
+
+		String secret = RandomStringUtils.random(RandomUtils.nextInt(100, 500));
+
+		byte[] encryptedTlv = MiniTLV.encrypt(tlv, secret);
+		System.out.println("encrypted tlv = " + DatatypeConverter.printHexBinary(encryptedTlv));
+
+		byte[] decryptedTlv = MiniTLV.decrypt(encryptedTlv, secret);
+		System.out.println("tlv = " + DatatypeConverter.printHexBinary(decryptedTlv));
+
+		String result = MiniTLV.parse(decryptedTlv, (byte)0x01);
+		System.out.println("decoded tlv = " + result);
+
+		Assert.assertNotNull(result);
+		Assert.assertEquals(value, result);
 	}
 
 }
