@@ -62,7 +62,7 @@ public class MiniTLV {
 	private static final int BYTE_SIZE = 1;
 	private static final int SHORT_SIZE = 2;
 	private static final int INT_SIZE = 4;
-	private static final int SALT_SIZE = 32;
+	private static final int SALT_SIZE = 16;
 
 	/**
 	 * Read the Type-Length-Value bytes and extract types and associated values
