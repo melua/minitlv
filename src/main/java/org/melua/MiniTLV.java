@@ -24,7 +24,6 @@ import java.io.StreamCorruptedException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.SecureRandom;
@@ -47,7 +46,6 @@ public class MiniTLV {
 	public static final byte EXTENTED_BYTES = 0x00;
 	private static final String TYPE_ERROR = "Type must be represented as 1, 2 or 4 bytes.";
 	private static final String INPUT_ERROR = "Input cannot be null.";
-	private static final Charset CHARSET = StandardCharsets.UTF_8;
 	
 	private static final int PBKDF2_ITERATIONS = 10_000;
 	private static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
@@ -71,7 +69,7 @@ public class MiniTLV {
 	 * @return values
 	 * @throws IOException
 	 */
-	public static Map<Integer, String> parseAll(byte[] tlv) throws IOException {
+	public static Map<Integer, byte[]> parseAll(byte[] tlv) throws IOException {
 
 		/*
 		 * Prevent bad TLV
@@ -80,7 +78,7 @@ public class MiniTLV {
 			throw new IllegalArgumentException(INPUT_ERROR);
 		}
 
-		Map<Integer, String> map = new HashMap<>();
+		Map<Integer, byte[]> map = new HashMap<>();
 
 		try (DataInputStream stream = new DataInputStream(new ByteArrayInputStream(tlv))) {
 
@@ -103,7 +101,7 @@ public class MiniTLV {
 					if (!map.containsKey(type)) {
 						byte[] value = new byte[length];
 						stream.readFully(value);
-						map.put(type, new String(value, CHARSET));
+						map.put(type, value);
 					} else {
 						stream.skip(length);
 					}
@@ -126,7 +124,7 @@ public class MiniTLV {
 	 * @return value for the given type
 	 * @throws IOException
 	 */
-	public static String parse(byte[] tlv, byte... type) throws IOException {
+	public static byte[] parse(byte[] tlv, byte... type) throws IOException {
 
 		/*
 		 * Prevent bad TLV
@@ -168,7 +166,7 @@ public class MiniTLV {
 					if (currentType == givenType) {
 						byte[] value = new byte[length];
 						stream.readFully(value);
-						return new String(value, CHARSET);
+						return value;
 					} else {
 						stream.skip(length);
 					}
@@ -190,7 +188,7 @@ public class MiniTLV {
 	 * @return value for the given type
 	 * @throws IOException
 	 */
-	public static String parse(byte[] tlv, byte type) throws IOException {
+	public static byte[] parse(byte[] tlv, byte type) throws IOException {
 		return parse(tlv, new byte[]{type});
 	}
 	
@@ -202,7 +200,7 @@ public class MiniTLV {
 	 * @return value for the given type
 	 * @throws IOException
 	 */
-	public static String parse(byte[] tlv, short type) throws IOException {
+	public static byte[] parse(byte[] tlv, short type) throws IOException {
 		return parse(tlv, convertToBytes(type));
 	}
 	
@@ -214,7 +212,7 @@ public class MiniTLV {
 	 * @return value for the given type
 	 * @throws IOException
 	 */
-	public static String parse(byte[] tlv, int type) throws IOException {
+	public static byte[] parse(byte[] tlv, int type) throws IOException {
 		return parse(tlv, convertToBytes(type));
 	}
 	
@@ -226,7 +224,7 @@ public class MiniTLV {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	public static byte[] serialize(int value, byte... type) {
-		return serialize(String.valueOf(value), type);
+		return serialize(convertToBytes(value), type);
 	}
 	
 	/**
@@ -237,7 +235,7 @@ public class MiniTLV {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	public static byte[] serialize(int value, byte type) {
-		return serialize(String.valueOf(value), new byte[]{type});
+		return serialize(convertToBytes(value), new byte[]{type});
 	}
 	
 	/**
@@ -248,7 +246,7 @@ public class MiniTLV {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	public static byte[] serialize(int value, short type) {
-		return serialize(String.valueOf(value), convertToBytes(type));
+		return serialize(convertToBytes(value), convertToBytes(type));
 	}
 	
 	/**
@@ -259,7 +257,7 @@ public class MiniTLV {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	public static byte[] serialize(int value, int type) {
-		return serialize(String.valueOf(value), convertToBytes(type));
+		return serialize(convertToBytes(value), convertToBytes(type));
 	}
 	
 	/**
@@ -275,7 +273,7 @@ public class MiniTLV {
 	 * @param type to write
 	 * @return bytes in Type-Length-Value representation
 	 */
-	public static byte[] serialize(String value, byte... type) {
+	public static byte[] serialize(byte[] value, byte... type) {
 		
 		/*
 		 * Prevent bad value
@@ -292,11 +290,6 @@ public class MiniTLV {
 		}
 		
 		/*
-		 * Convert string value to byte array
-		 */		
-		byte[] bytes = value.getBytes(CHARSET);
-		
-		/*
 		 * Prepare type and add extended marks if necessary
 		 */
 		ByteBuffer tbuffer = ByteBuffer.allocate(EXT_MAXSIZE + INT_SIZE);
@@ -308,17 +301,17 @@ public class MiniTLV {
 		 * Prepare length and add extended marks if necessary
 		 */
 		ByteBuffer lbuffer = ByteBuffer.allocate(EXT_MAXSIZE + INT_SIZE);
-		addExtendedLength(lbuffer, bytes.length);
-		lbuffer.put(minimalBytes(minimalBuffer(bytes.length)));
+		addExtendedLength(lbuffer, value.length);
+		lbuffer.put(minimalBytes(minimalBuffer(value.length)));
 		byte[] length = minimalBytes(lbuffer);
 		
 		/*
 		 * Create Type-Length-Value with calculated size
 		 */
-		ByteBuffer buffer = ByteBuffer.allocate(givenType.length + length.length + bytes.length);
+		ByteBuffer buffer = ByteBuffer.allocate(givenType.length + length.length + value.length);
 		buffer.put(givenType);
 		buffer.put(length);
-		buffer.put(bytes);
+		buffer.put(value);
 		return buffer.array();
 	}
 	
@@ -330,8 +323,20 @@ public class MiniTLV {
 	 * @param type to write
 	 * @return bytes in Type-Length-Value representation
 	 */
-	public static byte[] serialize(String value, byte type) {
-		return serialize(value, new byte[]{type});
+	public static byte[] serialize(String value, Charset charset, byte type) {
+		return serialize(value.getBytes(charset), new byte[]{type});
+	}
+
+	/**
+	 * Write a Type-Length-Value for the given bytes type and value,
+	 * and store them as 1, 2 or 4-bytes.
+	 *
+	 * @param value for the given type
+	 * @param type to write
+	 * @return bytes in Type-Length-Value representation
+	 */
+	public static byte[] serialize(String value, Charset charset, byte... type) {
+		return serialize(value.getBytes(charset), type);
 	}
 	
 	/**
@@ -342,8 +347,8 @@ public class MiniTLV {
 	 * @param type to write
 	 * @return bytes in Type-Length-Value representation
 	 */
-	public static byte[] serialize(String value, short type) {
-		return serialize(value, convertToBytes(type));
+	public static byte[] serialize(String value, Charset charset, short type) {
+		return serialize(value.getBytes(charset), convertToBytes(type));
 	}
 	
 	/**
@@ -354,8 +359,8 @@ public class MiniTLV {
 	 * @param type to write
 	 * @return bytes in Type-Length-Value representation
 	 */
-	public static byte[] serialize(String value, int type) {
-		return serialize(value, convertToBytes(type));
+	public static byte[] serialize(String value, Charset charset, int type) {
+		return serialize(value.getBytes(charset), convertToBytes(type));
 	}
 	
 	/**
@@ -367,11 +372,11 @@ public class MiniTLV {
 	 * @param bufferSize in bytes
 	 * @return bytes in Type-Length-Value representation
 	 */
-	public static byte[] serializeAll(Map<byte[], Object> map, int bufferSize) {
+	public static byte[] serializeAll(Map<byte[], byte[]> map, int bufferSize) {
 		ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
-		for (Entry<byte[], Object> entry : map.entrySet()) {
+		for (Entry<byte[], byte[]> entry : map.entrySet()) {
 			if (entry.getValue() != null) {
-				buffer.put(serialize(String.valueOf(entry.getValue()), entry.getKey()));
+				buffer.put(serialize(entry.getValue(), entry.getKey()));
 			}
 		}
 		return minimalBytes(buffer);
