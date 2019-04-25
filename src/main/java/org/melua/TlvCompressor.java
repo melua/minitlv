@@ -18,14 +18,13 @@ package org.melua;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 public class TlvCompressor {
 	
-	private ByteBuffer buffer = ByteBuffer.allocate(4096);
+	private ByteArrayOutputStream innerStream = new ByteArrayOutputStream();
 	
 	protected TlvCompressor() {
 	}
@@ -42,7 +41,7 @@ public class TlvCompressor {
 		/*
 		 * Convert buffer to byte array
 		 */
-		byte[] data = Tools.minimalBytes(this.buffer);
+		byte[] data = this.innerStream.toByteArray();
 		
 		Deflater deflater = new Deflater();
 		deflater.setInput(data);
@@ -71,7 +70,7 @@ public class TlvCompressor {
 		/*
 		 * Convert buffer to byte array
 		 */
-		byte[] data = Tools.minimalBytes(this.buffer);
+		byte[] data = this.innerStream.toByteArray();
 		
 		Inflater inflater = new Inflater();
 		inflater.setInput(data);
@@ -86,8 +85,8 @@ public class TlvCompressor {
 		}
     }
 	
-	public TlvCompressor add(byte[] data) {
-		buffer.put(data);
+	public TlvCompressor add(byte[] data) throws IOException {
+		innerStream.write(data);
 		return this;
 	}
 
