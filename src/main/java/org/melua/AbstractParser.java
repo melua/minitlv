@@ -20,7 +20,7 @@ import java.io.IOException;
 
 public abstract class AbstractParser {
 	
-	public abstract TlvParser read(byte[] tlv);
+	public abstract TlvParser read(byte[] tlv) throws IOException;
 	
 	public abstract byte[] parse(byte... type) throws IOException;
 	

@@ -1,5 +1,21 @@
 package org.melua;
 
+/*
+ * Copyright (C) 2018 Kevin Guignard
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import static org.melua.MiniTLV.EXT_MAXSIZE;
 import static org.melua.MiniTLV.INPUT_ERROR;
 import static org.melua.MiniTLV.TYPE_ERROR;
@@ -7,6 +23,7 @@ import static org.melua.Tools.BYTE_SIZE;
 import static org.melua.Tools.INT_SIZE;
 import static org.melua.Tools.SHORT_SIZE;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -16,7 +33,7 @@ import java.util.Map.Entry;
 
 public class TlvSerializer extends AbstractSerializer {
 	
-	private ByteBuffer buffer = ByteBuffer.allocate(4096);
+	private ByteArrayOutputStream innerStream = new ByteArrayOutputStream();
 	private Map<byte[], byte[]> innerMap = new HashMap<>();
 	
 	protected TlvSerializer() {
@@ -84,13 +101,13 @@ public class TlvSerializer extends AbstractSerializer {
 	 * @return bytes in Type-Length-Value representation
 	 * @throws IOException 
 	 */
-	public byte[] serialize() {
+	public byte[] serialize() throws IOException {
 		for (Entry<byte[], byte[]> entry : this.innerMap.entrySet()) {
 			if (entry.getValue() != null) {
-				this.buffer.put(serialize(entry.getKey(), entry.getValue()));
+				this.innerStream.write(serialize(entry.getKey(), entry.getValue()));
 			}
 		}
-		return Tools.minimalBytes(this.buffer);
+		return this.innerStream.toByteArray();
 	}
 	
 	/**
