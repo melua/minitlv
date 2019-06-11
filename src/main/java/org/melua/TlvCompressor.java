@@ -39,7 +39,7 @@ public class TlvCompressor {
 	public byte[] deflate(int bufferSize) throws IOException {
 		
 		/*
-		 * Convert buffer to byte array
+		 * Convert stream to byte array
 		 */
 		byte[] data = this.innerStream.toByteArray();
 		
@@ -68,7 +68,7 @@ public class TlvCompressor {
 	public byte[] inflate(int bufferSize) throws IOException, DataFormatException {
 		
 		/*
-		 * Convert buffer to byte array
+		 * Convert stream to byte array
 		 */
 		byte[] data = this.innerStream.toByteArray();
 		

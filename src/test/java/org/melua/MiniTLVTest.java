@@ -163,7 +163,7 @@ public class MiniTLVTest {
 		byte[] tlv = new byte[buffer.limit()];
 		buffer.get(tlv, 0, buffer.limit());
 
-		Map<Integer, byte[]> output = MiniTLV.getReader().read(tlv).parseAll();
+		Map<Integer, byte[]> output = MiniTLV.getReader().read(tlv).parse();
 
 		Assert.assertEquals(input.size(), output.size());
 
@@ -194,7 +194,7 @@ public class MiniTLVTest {
 		System.out.println("value = " + value);
 		Assert.assertNotNull(value);
 
-		Map<Integer, byte[]> output = MiniTLV.getReader().read(tlv).parseAll();
+		Map<Integer, byte[]> output = MiniTLV.getReader().read(tlv).parse();
 		for (byte[] val : output.values()) {
 			System.out.println("value = " + val);
 			Assert.assertEquals(value, new String(val, StandardCharsets.UTF_8));

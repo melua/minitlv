@@ -54,7 +54,7 @@ public class TlvParser extends AbstractParser {
 	public byte[] parse(byte... type) throws IOException {
 		
 		/*
-		 * Convert buffer to byte array
+		 * Convert stream to byte array
 		 */
 		byte[] tlv = this.innerStream.toByteArray();
 
@@ -118,10 +118,10 @@ public class TlvParser extends AbstractParser {
 	 * @return values
 	 * @throws IOException
 	 */
-	public Map<Integer, byte[]> parseAll() throws IOException {
+	public Map<Integer, byte[]> parse() throws IOException {
 
 		/*
-		 * Convert buffer to byte array
+		 * Convert stream to byte array
 		 */
 		byte[] tlv = this.innerStream.toByteArray();
 

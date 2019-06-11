@@ -30,7 +30,8 @@ public class MiniTLV {
 	}
 
 	/**
-	 * Retrieve an instance.
+	 * Retrieve an instance
+	 * of the MiniTLV Serializer
 	 *
 	 * @return a new instance
 	 */
@@ -39,7 +40,8 @@ public class MiniTLV {
 	}
 	
 	/**
-	 * Retrieve an instance.
+	 * Retrieve an instance
+	 * of the MiniTLV Parser
 	 *
 	 * @return a new instance
 	 */
@@ -48,7 +50,8 @@ public class MiniTLV {
 	}
 	
 	/**
-	 * Retrieve an instance.
+	 * Retrieve an instance
+	 * of the MiniTLV Crypto
 	 *
 	 * @return a new instance
 	 */
@@ -57,7 +60,8 @@ public class MiniTLV {
 	}
 	
 	/**
-	 * Retrieve an instance.
+	 * Retrieve an instance
+	 * of the MiniTLV Compressor
 	 *
 	 * @return a new instance
 	 */
