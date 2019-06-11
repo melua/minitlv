@@ -1,9 +1,16 @@
-# MiniTLV: a (not so) simple TLV parser
+# MiniTLV: a simple TLV parser
 MinitTLV let you convert your UTF-8 String into a Type-Length-Value byte array and reciprocally.
 The result is as short as possible without compression.
 The type and length have a dynamically resolved size (1, 2 or 4 bytes) using the `0x00` reserved byte for extension.
 The value field is of variable size (up to 2<sup>32</sup>-1).
 Additionally you can compress and/or encrypt serialized data.
+
+Method | Description
+------ | -----------
+*getWriter* | Create a new instance of Serializer.
+*getReader* | Create a new instance of Parser.
+*getCipher* | Create a new instance of Crypto.
+*getCompacter* | Create a new instance of Compressor.
 
 ## Serializer
 Method | Description
@@ -20,13 +27,13 @@ Method | Description
 ## Crypto
 Method | Description
 ------ | -----------
-*add* | Add bytes
+*add* | Add bytes.
 *encrypt* | Encrypt the given byte array with AES-128.
 *decrypt* | Decrypt the given byte array.
 
 ## Compressor
 Method | Description
 ------ | -----------
-*add* | Add bytes
+*add* | Add bytes.
 *deflate* | Compress the given byte array with DEFLATE.
 *inflate* | Decompress the given byte array.
