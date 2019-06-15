@@ -42,8 +42,8 @@ public interface Crypto {
 	/**
 	 * Add the given bytes to buffer
 	 * for later processing
-	 * @param data
-	 * @return
+	 * @param data to buffer
+	 * @return this
 	 * @throws IOException
 	 */
 	Crypto add(byte[] data) throws IOException;

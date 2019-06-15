@@ -43,8 +43,8 @@ public interface Compressor {
 	/**
 	 * Add the given bytes to buffer
 	 * for later processing
-	 * @param data
-	 * @return
+	 * @param data to buffer
+	 * @return this
 	 * @throws IOException
 	 */
 	Compressor add(byte[] data) throws IOException;
