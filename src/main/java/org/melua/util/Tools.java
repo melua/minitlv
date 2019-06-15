@@ -1,4 +1,4 @@
-package org.melua;
+package org.melua.util;
 
 /*
  * Copyright (C) 2018 Kevin Guignard
@@ -28,16 +28,16 @@ public class Tools {
 	private static final int UBYTE_MAXVALUE = 255;
 	private static final int USHORT_MAXVALUE = 65_535;
 	
-	protected static final int BYTE_SIZE = 1;
-	protected static final int SHORT_SIZE = 2;
-	protected static final int INT_SIZE = 4;
+	public static final int BYTE_SIZE = 1;
+	public static final int SHORT_SIZE = 2;
+	public static final int INT_SIZE = 4;
 	
 	/**
 	 * Automatically add extra {@link #EXTENTED_BYTES} for 2 and 4-bytes type.
 	 * @param buffer to append
 	 * @param type to check
 	 */
-	protected static void addExtendedType(ByteBuffer buffer, byte[] type) {
+	public static void addExtendedType(ByteBuffer buffer, byte[] type) {
 		switch (type.length) {
 		default:
 			throw new IllegalArgumentException();
@@ -54,7 +54,7 @@ public class Tools {
 	 * @param buffer to append
 	 * @param length to check
 	 */
-	protected static void addExtendedLength(ByteBuffer buffer, int length) {
+	public static void addExtendedLength(ByteBuffer buffer, int length) {
 		if (length > UBYTE_MAXVALUE) {
 			buffer.put(EXTENTED_BYTES);
 			if (length > USHORT_MAXVALUE) {
@@ -68,7 +68,7 @@ public class Tools {
 	 * @param bytes to convert
 	 * @return integer
 	 */
-	protected static int convertToInt(byte[] bytes) {
+	public static int convertToInt(byte[] bytes) {
 		ByteBuffer buffer = ByteBuffer.allocate(INT_SIZE);
 		switch (bytes.length) {
 		default:
@@ -89,7 +89,7 @@ public class Tools {
 	 * @param buffer
 	 * @return byte array
 	 */
-	protected static byte[] minimalBytes(ByteBuffer buffer) {
+	public static byte[] minimalBytes(ByteBuffer buffer) {
 		buffer.flip();
 		byte[] result = new byte[buffer.limit()];
 		buffer.get(result, 0, buffer.limit());
@@ -101,7 +101,7 @@ public class Tools {
 	 * @param value
 	 * @return byte buffer
 	 */
-	protected static ByteBuffer minimalBuffer(int value) {
+	public static ByteBuffer minimalBuffer(int value) {
 		ByteBuffer buffer = ByteBuffer.allocate(INT_SIZE);
 		if (value > UBYTE_MAXVALUE) {
 			if (value > USHORT_MAXVALUE) {
@@ -122,7 +122,7 @@ public class Tools {
 	 * @return byte buffer
 	 * @throws IOException
 	 */
-	protected static ByteBuffer getBuffer(DataInputStream stream) throws IOException {
+	public static ByteBuffer getBuffer(DataInputStream stream) throws IOException {
 		reading:
 		for(int bytes = 1; stream.available() >= bytes; bytes *= 2) {
 			int result = stream.readByte();
@@ -153,7 +153,7 @@ public class Tools {
 	 * @param value to convert
 	 * @return byte array
 	 */
-	protected static byte[] convertToBytes(short value) {
+	public static byte[] convertToBytes(short value) {
 		ByteBuffer buffer = ByteBuffer.allocate(SHORT_SIZE);
 		buffer.putShort(value);
 		return buffer.array();
@@ -164,7 +164,7 @@ public class Tools {
 	 * @param value to convert
 	 * @return byte array
 	 */
-	protected static byte[] convertToBytes(int value) {
+	public static byte[] convertToBytes(int value) {
 		ByteBuffer buffer = ByteBuffer.allocate(INT_SIZE);
 		buffer.putInt(value);
 		return buffer.array();

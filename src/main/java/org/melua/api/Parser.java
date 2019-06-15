@@ -1,4 +1,4 @@
-package org.melua;
+package org.melua.api;
 
 /*
  * Copyright (C) 2018 Kevin Guignard
@@ -17,12 +17,44 @@ package org.melua;
  */
 
 import java.io.IOException;
+import java.nio.ByteOrder;
+import java.util.Map;
 
-public abstract class AbstractParser {
+import org.melua.util.Tools;
+
+public interface Parser {
 	
-	public abstract TlvParser read(byte[] tlv) throws IOException;
+	/**
+	 * Add Type-Length-Value bytes to buffer
+	 * for later parsing
+	 *
+	 * @param tlv bytes to read
+	 * @return this
+	 * @throws IOException 
+	 */
+	Parser read(byte[] tlv) throws IOException;
 	
-	public abstract byte[] parse(byte... type) throws IOException;
+	/**
+	 * Read the Type-Length-Value bytes and extract value for the given 1, 2 or 4-bytes type.
+	 * From 0x01 (1) to 0xff (255) the type must be represented as one byte.
+	 * From 0x0100 (256) to 0xffff (65535) the type must be represented as two bytes,
+	 * from 0x010000 (65536) to 0xffffffff (4294967295) the type must be represented as four bytes,
+	 * and must be given in {@link ByteOrder#BIG_ENDIAN} order.
+	 * 
+	 * @param tlv bytes to read
+	 * @param type to search for
+	 * @return value for the given type
+	 * @throws IOException
+	 */
+	byte[] parse(byte... type) throws IOException;
+	
+	/**
+	 * Read the Type-Length-Value bytes and extract types and associated values.
+	 *
+	 * @return values
+	 * @throws IOException
+	 */
+	Map<Integer, byte[]> parse() throws IOException;
 	
 	/**
 	 * Read the Type-Length-Value bytes and extract value for the given byte type.
@@ -32,7 +64,7 @@ public abstract class AbstractParser {
 	 * @return value for the given type
 	 * @throws IOException
 	 */
-	public byte[] parse(byte type) throws IOException {
+	default byte[] parse(byte type) throws IOException {
 		return parse(new byte[]{type});
 	}
 	
@@ -44,7 +76,7 @@ public abstract class AbstractParser {
 	 * @return value for the given type
 	 * @throws IOException
 	 */
-	public byte[] parse(short type) throws IOException {
+	default byte[] parse(short type) throws IOException {
 		return parse(Tools.convertToBytes(type));
 	}
 	
@@ -56,8 +88,8 @@ public abstract class AbstractParser {
 	 * @return value for the given type
 	 * @throws IOException
 	 */
-	public byte[] parse(int type) throws IOException {
+	default byte[] parse(int type) throws IOException {
 		return parse(Tools.convertToBytes(type));
 	}
-	
+
 }

@@ -22,20 +22,16 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
-public class TlvCompressor {
+import org.melua.api.Compressor;
+
+public class MiniTLVCompressor implements Compressor {
 	
 	private ByteArrayOutputStream innerStream = new ByteArrayOutputStream();
 	
-	protected TlvCompressor() {
+	protected MiniTLVCompressor() {
 	}
 	
-	/**
-	 * Compress the given byte array.
-	 * @param data to compress
-	 * @param bufferSize in bytes
-	 * @return compressed data
-	 * @throws IOException
-	 */
+	@Override
 	public byte[] deflate(int bufferSize) throws IOException {
 		
 		/*
@@ -57,14 +53,7 @@ public class TlvCompressor {
 		}
 	}
 
-	/**
-	 * Decompress the given byte array.
-	 * @param data to decompress
-	 * @param bufferSize in bytes
-	 * @return decompressed data
-	 * @throws IOException
-	 * @throws DataFormatException
-	 */
+	@Override
 	public byte[] inflate(int bufferSize) throws IOException, DataFormatException {
 		
 		/*
@@ -85,7 +74,8 @@ public class TlvCompressor {
 		}
     }
 	
-	public TlvCompressor add(byte[] data) throws IOException {
+	@Override
+	public Compressor add(byte[] data) throws IOException {
 		innerStream.write(data);
 		return this;
 	}

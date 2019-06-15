@@ -19,37 +19,27 @@ package org.melua;
 import static org.melua.MiniTLV.INPUT_ERROR;
 import static org.melua.MiniTLV.TLV_MINSIZE;
 import static org.melua.MiniTLV.TYPE_ERROR;
-import static org.melua.Tools.BYTE_SIZE;
-import static org.melua.Tools.INT_SIZE;
-import static org.melua.Tools.SHORT_SIZE;
+import static org.melua.util.Tools.BYTE_SIZE;
+import static org.melua.util.Tools.INT_SIZE;
+import static org.melua.util.Tools.SHORT_SIZE;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TlvParser extends AbstractParser {
+import org.melua.api.Parser;
+import org.melua.util.Tools;
+
+public class MiniTLVParser implements Parser {
 	
 	private ByteArrayOutputStream innerStream = new ByteArrayOutputStream();
 	
-	protected TlvParser() {
+	protected MiniTLVParser() {
 	}
 	
-	/**
-	 * Read the Type-Length-Value bytes and extract value for the given 1, 2 or 4-bytes type.
-	 * From 0x01 (1) to 0xff (255) the type must be represented as one byte.
-	 * From 0x0100 (256) to 0xffff (65535) the type must be represented as two bytes,
-	 * from 0x010000 (65536) to 0xffffffff (4294967295) the type must be represented as four bytes,
-	 * and must be given in {@link ByteOrder#BIG_ENDIAN} order.
-	 * 
-	 * @param tlv bytes to read
-	 * @param type to search for
-	 * @return value for the given type
-	 * @throws IOException
-	 */
 	@Override
 	public byte[] parse(byte... type) throws IOException {
 		
@@ -112,12 +102,7 @@ public class TlvParser extends AbstractParser {
 		return null;
 	}
 	
-	/**
-	 * Read the Type-Length-Value bytes and extract types and associated values.
-	 *
-	 * @return values
-	 * @throws IOException
-	 */
+	@Override
 	public Map<Integer, byte[]> parse() throws IOException {
 
 		/*
@@ -166,15 +151,8 @@ public class TlvParser extends AbstractParser {
 		return map;
 	}
 	
-	/**
-	 * Add Type-Length-Value bytes.
-	 *
-	 * @param tlv bytes to read
-	 * @return this
-	 * @throws IOException 
-	 */
 	@Override
-	public TlvParser read(byte[] tlv) throws IOException {
+	public Parser read(byte[] tlv) throws IOException {
 		this.innerStream.write(tlv);
 		return this;
 	}

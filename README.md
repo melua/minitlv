@@ -28,12 +28,12 @@ Method | Description
 Method | Description
 ------ | -----------
 *add* | Add bytes.
-*encrypt* | Encrypt the given byte array with AES-128.
-*decrypt* | Decrypt the given byte array.
+*encrypt* | Encrypt the byte array with AES-128.
+*decrypt* | Decrypt the byte array.
 
 ## Compressor
 Method | Description
 ------ | -----------
 *add* | Add bytes.
-*deflate* | Compress the given byte array with DEFLATE.
-*inflate* | Decompress the given byte array.
+*deflate* | Compress the byte array with DEFLATE.
+*inflate* | Decompress the byte array.

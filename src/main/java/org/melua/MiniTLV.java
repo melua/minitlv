@@ -1,5 +1,10 @@
 package org.melua;
 
+import org.melua.api.Compressor;
+import org.melua.api.Crypto;
+import org.melua.api.Parser;
+import org.melua.api.Serializer;
+
 /*
  * Copyright (C) 2018 Kevin Guignard
  *
@@ -35,8 +40,8 @@ public class MiniTLV {
 	 *
 	 * @return a new instance
 	 */
-	public static TlvSerializer getWriter() {
-		return new TlvSerializer();
+	public static Serializer getWriter() {
+		return new MiniTLVSerializer();
 	}
 	
 	/**
@@ -45,8 +50,8 @@ public class MiniTLV {
 	 *
 	 * @return a new instance
 	 */
-	public static TlvParser getReader() {
-		return new TlvParser();
+	public static Parser getReader() {
+		return new MiniTLVParser();
 	}
 	
 	/**
@@ -55,8 +60,8 @@ public class MiniTLV {
 	 *
 	 * @return a new instance
 	 */
-	public static TlvCrypto getCipher() {
-		return new TlvCrypto();
+	public static Crypto getCipher() {
+		return new MiniTLVCrypto();
 	}
 	
 	/**
@@ -65,8 +70,8 @@ public class MiniTLV {
 	 *
 	 * @return a new instance
 	 */
-	public static TlvCompressor getCompacter() {
-		return new TlvCompressor();
+	public static Compressor getCompacter() {
+		return new MiniTLVCompressor();
 	}
 
 }

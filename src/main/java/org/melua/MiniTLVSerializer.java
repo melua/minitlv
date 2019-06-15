@@ -19,9 +19,9 @@ package org.melua;
 import static org.melua.MiniTLV.EXT_MAXSIZE;
 import static org.melua.MiniTLV.INPUT_ERROR;
 import static org.melua.MiniTLV.TYPE_ERROR;
-import static org.melua.Tools.BYTE_SIZE;
-import static org.melua.Tools.INT_SIZE;
-import static org.melua.Tools.SHORT_SIZE;
+import static org.melua.util.Tools.BYTE_SIZE;
+import static org.melua.util.Tools.INT_SIZE;
+import static org.melua.util.Tools.SHORT_SIZE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,12 +31,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class TlvSerializer extends AbstractSerializer {
+import org.melua.api.Serializer;
+import org.melua.util.Tools;
+
+public class MiniTLVSerializer implements Serializer {
 	
 	private ByteArrayOutputStream innerStream = new ByteArrayOutputStream();
 	private Map<byte[], byte[]> innerMap = new HashMap<>();
 	
-	protected TlvSerializer() {
+	protected MiniTLVSerializer() {
 	}
 	
 	/**
@@ -94,13 +97,7 @@ public class TlvSerializer extends AbstractSerializer {
 		return buffer.array();
 	}
 	
-	/**
-	 * Write a Type-Length-Value and store them as 1, 2 or 4-bytes.
-	 * @see #deflate(byte[], int)
-	 *
-	 * @return bytes in Type-Length-Value representation
-	 * @throws IOException 
-	 */
+	@Override
 	public byte[] serialize() throws IOException {
 		for (Entry<byte[], byte[]> entry : this.innerMap.entrySet()) {
 			if (entry.getValue() != null) {
@@ -110,15 +107,8 @@ public class TlvSerializer extends AbstractSerializer {
 		return this.innerStream.toByteArray();
 	}
 	
-	/**
-	 * Add type and value.
-	 *
-	 * @param value for the given type
-	 * @param type to write
-	 * @return this
-	 */
 	@Override
-	public TlvSerializer write(byte[] value, byte... type) {
+	public Serializer write(byte[] value, byte... type) {
 		this.innerMap.put(value, type);
 		return this;
 	}

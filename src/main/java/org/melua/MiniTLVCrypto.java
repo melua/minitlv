@@ -46,7 +46,9 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class TlvCrypto {
+import org.melua.api.Crypto;
+
+public class MiniTLVCrypto implements Crypto {
 	
 	private static final int PBKDF2_ITERATIONS = 10_000;
 	private static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
@@ -55,7 +57,7 @@ public class TlvCrypto {
 	
 	private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 	
-	protected TlvCrypto() {
+	protected MiniTLVCrypto() {
 	}
 
 	/**
@@ -71,13 +73,7 @@ public class TlvCrypto {
 		return SecretKeyFactory.getInstance(PBKDF2_ALGORITHM).generateSecret(spec).getEncoded();
 	}
 
-    /**
-     * Encrypt data using given secret.
-     * @param data to encrypt
-     * @param secret used for encryption
-     * @return encrypted data with salt
-     * @throws GeneralSecurityException
-     */
+	@Override
 	public byte[] encrypt(String secret) throws GeneralSecurityException {
 		
 		/*
@@ -114,13 +110,7 @@ public class TlvCrypto {
 		return result.array();
     }
 
-    /**
-     * Decrypt data with salt using given secret.
-     * @param data to decrypt
-     * @param secret used for decryption
-     * @return decrypted data
-     * @throws GeneralSecurityException
-     */
+	@Override
 	public byte[] decrypt(String secret) throws GeneralSecurityException {
 		
 		/*
@@ -147,7 +137,8 @@ public class TlvCrypto {
 		return cipher.doFinal(Arrays.copyOfRange(data, SALT_SIZE, data.length));
     }
 	
-	public TlvCrypto add(byte[] data) throws IOException {
+	@Override
+	public Crypto add(byte[] data) throws IOException {
 		buffer.write(data);
 		return this;
 	}
