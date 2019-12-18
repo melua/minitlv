@@ -20,9 +20,13 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Map;
 
-import org.melua.util.Tools;
-
 public interface Parser {
+	
+	/**
+	 * Retrieve the inner bytes converter
+	 * @return Converter
+	 */
+	Converter getConverter();
 	
 	/**
 	 * Add Type-Length-Value bytes to buffer
@@ -77,7 +81,7 @@ public interface Parser {
 	 * @throws IOException
 	 */
 	default byte[] parse(short type) throws IOException {
-		return parse(Tools.convertToBytes(type));
+		return parse(getConverter().convertToBytes(type));
 	}
 	
 	/**
@@ -89,7 +93,7 @@ public interface Parser {
 	 * @throws IOException
 	 */
 	default byte[] parse(int type) throws IOException {
-		return parse(Tools.convertToBytes(type));
+		return parse(getConverter().convertToBytes(type));
 	}
 
 }

@@ -26,7 +26,7 @@ import org.melua.api.Compressor;
 
 public class MiniTLVCompressor implements Compressor {
 	
-	private ByteArrayOutputStream innerStream = new ByteArrayOutputStream();
+	private final ByteArrayOutputStream innerStream = new ByteArrayOutputStream();
 	
 	protected MiniTLVCompressor() {
 	}

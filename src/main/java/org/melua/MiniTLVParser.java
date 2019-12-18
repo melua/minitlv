@@ -1,5 +1,7 @@
 package org.melua;
 
+import static org.melua.MiniTLV.BYTE_SIZE;
+
 /*
  * Copyright (C) 2018 Kevin Guignard
  *
@@ -17,11 +19,10 @@ package org.melua;
  */
 
 import static org.melua.MiniTLV.INPUT_ERROR;
+import static org.melua.MiniTLV.INT_SIZE;
+import static org.melua.MiniTLV.SHORT_SIZE;
 import static org.melua.MiniTLV.TLV_MINSIZE;
 import static org.melua.MiniTLV.TYPE_ERROR;
-import static org.melua.util.Tools.BYTE_SIZE;
-import static org.melua.util.Tools.INT_SIZE;
-import static org.melua.util.Tools.SHORT_SIZE;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,14 +31,16 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.melua.api.Converter;
 import org.melua.api.Parser;
-import org.melua.util.Tools;
 
 public class MiniTLVParser implements Parser {
 	
-	private ByteArrayOutputStream innerStream = new ByteArrayOutputStream();
+	private final Converter converter;
+	private final ByteArrayOutputStream innerStream = new ByteArrayOutputStream();
 	
-	protected MiniTLVParser() {
+	protected MiniTLVParser(Converter converter) {
+		this.converter = converter;
 	}
 	
 	@Override
@@ -65,7 +68,7 @@ public class MiniTLVParser implements Parser {
 		/*
 		 * Convert type byte array to integer
 		 */
-		int givenType = Tools.convertToInt(type);
+		int givenType = getConverter().convertToInt(type);
 
 		try (DataInputStream stream = new DataInputStream(new ByteArrayInputStream(tlv))) {
 
@@ -74,12 +77,12 @@ public class MiniTLVParser implements Parser {
 				/*
 				 * Read 1st byte or next 2, 4-bytes if extended
 				 */
-				int currentType = Tools.convertToInt(Tools.minimalBytes(Tools.getBuffer(stream)));
+				int currentType = getConverter().convertToInt(MiniTLV.minimalBytes(MiniTLV.getBuffer(stream)));
 				
 				/*
 				 * Read 1st byte or next 2, 4-bytes if extended
 				 */
-				int length = Tools.convertToInt(Tools.minimalBytes(Tools.getBuffer(stream)));
+				int length = getConverter().convertToInt(MiniTLV.minimalBytes(MiniTLV.getBuffer(stream)));
 				
 				/*
 				 * Read or skip value
@@ -126,12 +129,12 @@ public class MiniTLVParser implements Parser {
 				/*
 				 * Read 1st byte or next 2, 4-bytes if extended
 				 */
-				int type = Tools.convertToInt(Tools.minimalBytes(Tools.getBuffer(stream)));
+				int type = getConverter().convertToInt(MiniTLV.minimalBytes(MiniTLV.getBuffer(stream)));
 
 				/*
 				 * Read 1st byte or next 2, 4-bytes if extended
 				 */
-				int length = Tools.convertToInt(Tools.minimalBytes(Tools.getBuffer(stream)));
+				int length = getConverter().convertToInt(MiniTLV.minimalBytes(MiniTLV.getBuffer(stream)));
 
 				/*
 				 * Read or skip value
@@ -155,6 +158,11 @@ public class MiniTLVParser implements Parser {
 	public Parser read(byte[] tlv) throws IOException {
 		this.innerStream.write(tlv);
 		return this;
+	}
+	
+	@Override
+	public Converter getConverter() {
+		return this.converter;
 	}
 
 }

@@ -1,5 +1,7 @@
 package org.melua;
 
+import static org.melua.MiniTLV.BYTE_SIZE;
+
 /*
  * Copyright (C) 2018 Kevin Guignard
  *
@@ -18,10 +20,9 @@ package org.melua;
 
 import static org.melua.MiniTLV.EXT_MAXSIZE;
 import static org.melua.MiniTLV.INPUT_ERROR;
+import static org.melua.MiniTLV.INT_SIZE;
+import static org.melua.MiniTLV.SHORT_SIZE;
 import static org.melua.MiniTLV.TYPE_ERROR;
-import static org.melua.util.Tools.BYTE_SIZE;
-import static org.melua.util.Tools.INT_SIZE;
-import static org.melua.util.Tools.SHORT_SIZE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,15 +32,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.melua.api.Converter;
 import org.melua.api.Serializer;
-import org.melua.util.Tools;
 
 public class MiniTLVSerializer implements Serializer {
 	
-	private ByteArrayOutputStream innerStream = new ByteArrayOutputStream();
-	private Map<byte[], byte[]> innerMap = new HashMap<>();
+	private final Converter converter;
+	private final ByteArrayOutputStream innerStream = new ByteArrayOutputStream();
+	private final Map<byte[], byte[]> innerMap = new HashMap<>();
 	
-	protected MiniTLVSerializer() {
+	protected MiniTLVSerializer(Converter converter) {
+		this.converter = converter;
 	}
 	
 	/**
@@ -75,17 +78,17 @@ public class MiniTLVSerializer implements Serializer {
 		 * Prepare type and add extended marks if necessary
 		 */
 		ByteBuffer tbuffer = ByteBuffer.allocate(EXT_MAXSIZE + INT_SIZE);
-		Tools.addExtendedType(tbuffer, type);
+		MiniTLV.addExtendedType(tbuffer, type);
 		tbuffer.put(type);
-		byte[] givenType = Tools.minimalBytes(tbuffer);
+		byte[] givenType = MiniTLV.minimalBytes(tbuffer);
 		
 		/*
 		 * Prepare length and add extended marks if necessary
 		 */
 		ByteBuffer lbuffer = ByteBuffer.allocate(EXT_MAXSIZE + INT_SIZE);
-		Tools.addExtendedLength(lbuffer, value.length);
-		lbuffer.put(Tools.minimalBytes(Tools.minimalBuffer(value.length)));
-		byte[] length = Tools.minimalBytes(lbuffer);
+		MiniTLV.addExtendedLength(lbuffer, value.length);
+		lbuffer.put(MiniTLV.minimalBytes(MiniTLV.minimalBuffer(value.length)));
+		byte[] length = MiniTLV.minimalBytes(lbuffer);
 		
 		/*
 		 * Create Type-Length-Value with calculated size
@@ -111,6 +114,11 @@ public class MiniTLVSerializer implements Serializer {
 	public Serializer write(byte[] value, byte... type) {
 		this.innerMap.put(value, type);
 		return this;
+	}
+
+	@Override
+	public Converter getConverter() {
+		return this.converter;
 	}
 
 }

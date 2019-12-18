@@ -36,9 +36,13 @@ import java.io.IOException;
 
 import java.nio.charset.Charset;
 
-import org.melua.util.Tools;
-
 public interface Serializer {
+	
+	/**
+	 * Retrieve the inner bytes converter
+	 * @return Converter
+	 */
+	Converter getConverter();
 	
 	/**
 	 * Add type/value to buffer
@@ -80,7 +84,7 @@ public interface Serializer {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	default Serializer write(byte[] value, short type) {
-		return write(value, Tools.convertToBytes(type));
+		return write(value, getConverter().convertToBytes(type));
 	}
 	
 	/**
@@ -92,7 +96,7 @@ public interface Serializer {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	default Serializer write(byte[] value, int type) {
-		return write(value, Tools.convertToBytes(type));
+		return write(value, getConverter().convertToBytes(type));
 	}
 	
 	/**
@@ -103,7 +107,7 @@ public interface Serializer {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	default Serializer write(short value, byte... type) {
-		return write(Tools.convertToBytes(value), type);
+		return write(getConverter().convertToBytes(value), type);
 	}
 	
 	/**
@@ -114,7 +118,7 @@ public interface Serializer {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	default Serializer write(short value, byte type) {
-		return write(Tools.convertToBytes(value), new byte[]{type});
+		return write(getConverter().convertToBytes(value), new byte[]{type});
 	}
 	
 	/**
@@ -125,7 +129,7 @@ public interface Serializer {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	default Serializer write(short value, short type) {
-		return write(Tools.convertToBytes(value), Tools.convertToBytes(type));
+		return write(getConverter().convertToBytes(value), getConverter().convertToBytes(type));
 	}
 	
 	/**
@@ -136,7 +140,7 @@ public interface Serializer {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	default Serializer write(short value, int type) {
-		return write(Tools.convertToBytes(value), Tools.convertToBytes(type));
+		return write(getConverter().convertToBytes(value), getConverter().convertToBytes(type));
 	}
 	
 	/**
@@ -147,7 +151,7 @@ public interface Serializer {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	default Serializer write(int value, byte... type) {
-		return write(Tools.convertToBytes(value), type);
+		return write(getConverter().convertToBytes(value), type);
 	}
 	
 	/**
@@ -158,7 +162,7 @@ public interface Serializer {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	default Serializer write(int value, byte type) {
-		return write(Tools.convertToBytes(value), new byte[]{type});
+		return write(getConverter().convertToBytes(value), new byte[]{type});
 	}
 	
 	/**
@@ -169,7 +173,7 @@ public interface Serializer {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	default Serializer write(int value, short type) {
-		return write(Tools.convertToBytes(value), Tools.convertToBytes(type));
+		return write(getConverter().convertToBytes(value), getConverter().convertToBytes(type));
 	}
 	
 	/**
@@ -180,7 +184,7 @@ public interface Serializer {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	default Serializer write(int value, int type) {
-		return write(Tools.convertToBytes(value), Tools.convertToBytes(type));
+		return write(getConverter().convertToBytes(value), getConverter().convertToBytes(type));
 	}
 	
 	/**
@@ -213,7 +217,7 @@ public interface Serializer {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	default Serializer write(String value, Charset charset, short type) {
-		return write(value.getBytes(charset), Tools.convertToBytes(type));
+		return write(value.getBytes(charset), getConverter().convertToBytes(type));
 	}
 	
 	/**
@@ -224,7 +228,7 @@ public interface Serializer {
 	 * @return bytes in Type-Length-Value representation
 	 */
 	default Serializer write(String value, Charset charset, int type) {
-		return write(value.getBytes(charset), Tools.convertToBytes(type));
+		return write(value.getBytes(charset), getConverter().convertToBytes(type));
 	}
 
 }
