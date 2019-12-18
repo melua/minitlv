@@ -30,15 +30,10 @@ import org.melua.api.Converter;
  *
  */
 public class DefaultConverter implements Converter {
-	
+
 	protected DefaultConverter() {
 	}
-	
-	/**
-	 * Convert byte array to 4-bytes integer.
-	 * @param bytes to convert
-	 * @return integer
-	 */
+
 	@Override
 	public int convertToInt(byte[] bytes) {
 		ByteBuffer buffer = ByteBuffer.allocate(INT_SIZE);
@@ -55,25 +50,14 @@ public class DefaultConverter implements Converter {
 		}
 		return buffer.getInt();
 	}
-	
-	
-	/**
-	 * Convert short to 2-bytes array.
-	 * @param value to convert
-	 * @return byte array
-	 */
+
 	@Override
 	public byte[] convertToBytes(short value) {
 		ByteBuffer buffer = ByteBuffer.allocate(SHORT_SIZE);
 		buffer.putShort(value);
 		return buffer.array();
 	}
-	
-	/**
-	 * Convert integer to 4-bytes array.
-	 * @param value to convert
-	 * @return byte array
-	 */
+
 	@Override
 	public byte[] convertToBytes(int value) {
 		ByteBuffer buffer = ByteBuffer.allocate(INT_SIZE);

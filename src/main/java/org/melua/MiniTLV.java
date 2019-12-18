@@ -1,16 +1,5 @@
 package org.melua;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.StreamCorruptedException;
-import java.nio.ByteBuffer;
-
-import org.melua.api.Compressor;
-import org.melua.api.Converter;
-import org.melua.api.Crypto;
-import org.melua.api.Parser;
-import org.melua.api.Serializer;
-
 /*
  * Copyright (C) 2018 Kevin Guignard
  *
@@ -26,6 +15,17 @@ import org.melua.api.Serializer;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.StreamCorruptedException;
+import java.nio.ByteBuffer;
+
+import org.melua.api.Compressor;
+import org.melua.api.Converter;
+import org.melua.api.Crypto;
+import org.melua.api.Parser;
+import org.melua.api.Serializer;
 
 public class MiniTLV {
 

@@ -1,7 +1,5 @@
 package org.melua;
 
-import static org.melua.MiniTLV.BYTE_SIZE;
-
 /*
  * Copyright (C) 2018 Kevin Guignard
  *
@@ -18,6 +16,7 @@ import static org.melua.MiniTLV.BYTE_SIZE;
  * limitations under the License.
  */
 
+import static org.melua.MiniTLV.BYTE_SIZE;
 import static org.melua.MiniTLV.EXT_MAXSIZE;
 import static org.melua.MiniTLV.INPUT_ERROR;
 import static org.melua.MiniTLV.INT_SIZE;
