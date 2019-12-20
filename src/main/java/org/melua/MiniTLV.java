@@ -186,17 +186,13 @@ public class MiniTLV {
 				ByteBuffer buffer = ByteBuffer.allocate(INT_SIZE);
 				buffer.put((byte) result);
 				switch (bytes) {
-				case BYTE_SIZE:
-					break;
-				case SHORT_SIZE:
-					buffer.put((byte) stream.readByte());
-					break;
-				case INT_SIZE:
-					buffer.put((byte) stream.readByte());
-					buffer.putShort((short) stream.readShort());
-					break;
 				default:
 					break reading;
+				case INT_SIZE:
+					buffer.putShort((short) stream.readShort());
+				case SHORT_SIZE:
+					buffer.put((byte) stream.readByte());
+				case BYTE_SIZE:
 				}
 				return buffer;
 			}

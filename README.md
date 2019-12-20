@@ -42,4 +42,4 @@ Method | Description
 Method | Description
 ------ | -----------
 *convertToInt* | Convert byte array to integer.
-*convertToBytes* | Convert short or integer to bytes array.
+*convertToBytes* | Convert short or integer to byte array.
