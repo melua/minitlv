@@ -28,7 +28,7 @@ import org.melua.api.Parser;
 import org.melua.api.Serializer;
 
 public class MiniTLV {
-
+	
 	public static final byte EXTENTED_BYTES = 0x00;
 	
 	protected static final int BYTE_SIZE = 1;
@@ -43,7 +43,7 @@ public class MiniTLV {
 	
 	private static final int UBYTE_MAXVALUE = 255;
 	private static final int USHORT_MAXVALUE = 65_535;
-
+	
 	private MiniTLV() {
 	}
 
@@ -93,20 +93,46 @@ public class MiniTLV {
 	 * Retrieve an instance
 	 * of the MiniTLV Crypto
 	 *
+	 * @param algo
+	 * @return a new instance
+	 */
+	public static Crypto getCipher(Algorithm algo) {
+		return new MiniTLVCrypto(algo);
+	}
+	
+	/**
+	 * Retrieve an instance
+	 * of the MiniTLV Crypto
+	 * using {@link Algorithm#AES128 AES128}
+	 * algorithm
+	 *
 	 * @return a new instance
 	 */
 	public static Crypto getCipher() {
-		return new MiniTLVCrypto();
+		return new MiniTLVCrypto(Algorithm.AES128);
 	}
 	
 	/**
 	 * Retrieve an instance
 	 * of the MiniTLV Compressor
 	 *
+	 * @param level
+	 * @return a new instance
+	 */
+	public static Compressor getCompacter(Level level) {
+		return new MiniTLVCompressor(level);
+	}
+	
+	/**
+	 * Retrieve an instance
+	 * of the MiniTLV Compressor
+	 * using {@link org.melua.Level#BALANCED BALANCED}
+	 * compression level
+	 *
 	 * @return a new instance
 	 */
 	public static Compressor getCompacter() {
-		return new MiniTLVCompressor();
+		return new MiniTLVCompressor(Level.BALANCED);
 	}
 	
 	/**

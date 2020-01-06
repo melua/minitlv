@@ -26,9 +26,11 @@ import org.melua.api.Compressor;
 
 public class MiniTLVCompressor implements Compressor {
 	
+	private final int compressionLevel;
 	private final ByteArrayOutputStream innerStream = new ByteArrayOutputStream();
 	
-	protected MiniTLVCompressor() {
+	protected MiniTLVCompressor(Level level) {
+		this.compressionLevel = level.getValue();
 	}
 	
 	@Override
@@ -39,7 +41,7 @@ public class MiniTLVCompressor implements Compressor {
 		 */
 		byte[] data = this.innerStream.toByteArray();
 		
-		Deflater deflater = new Deflater();
+		Deflater deflater = new Deflater(compressionLevel);
 		deflater.setInput(data);
 
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length)) {

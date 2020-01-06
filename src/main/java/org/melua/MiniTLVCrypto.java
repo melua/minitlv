@@ -38,11 +38,12 @@ public class MiniTLVCrypto implements Crypto {
 	private static final int PBKDF2_ITERATIONS = 10_000;
 	private static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
 	private static final String AES_ALGORITHM = "AES";
-	private static final int SALT_SIZE = 16;
 	
+	private final int keyLength;
 	private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 	
-	protected MiniTLVCrypto() {
+	protected MiniTLVCrypto(Algorithm algo) {
+		this.keyLength = algo.getKeyLength();
 	}
 
 	/**
@@ -53,8 +54,8 @@ public class MiniTLVCrypto implements Crypto {
 	 * @return the PBDKF2 hash of the password
 	 * @throws GeneralSecurityException
 	 */
-	private static byte[] pbkdf2(String secret, byte[] salt) throws GeneralSecurityException {
-		KeySpec spec = new PBEKeySpec(secret.toCharArray(), salt, PBKDF2_ITERATIONS, SALT_SIZE*8);
+	private byte[] pbkdf2(String secret, byte[] salt) throws GeneralSecurityException {
+		KeySpec spec = new PBEKeySpec(secret.toCharArray(), salt, PBKDF2_ITERATIONS, this.keyLength * Byte.SIZE);
 		return SecretKeyFactory.getInstance(PBKDF2_ALGORITHM).generateSecret(spec).getEncoded();
 	}
 
@@ -69,7 +70,7 @@ public class MiniTLVCrypto implements Crypto {
 		/*
 		 * Generate random salt
 		 */
-		byte[] salt = new byte[SALT_SIZE];
+		byte[] salt = new byte[keyLength];
 		SecureRandom random = new SecureRandom();
 		random.nextBytes(salt);
 
@@ -106,7 +107,7 @@ public class MiniTLVCrypto implements Crypto {
 		/*
 		 * Extract salt
 		 */
-		byte[] salt = Arrays.copyOfRange(data, 0, SALT_SIZE);
+		byte[] salt = Arrays.copyOfRange(data, 0, keyLength);
 
 		/*
 		 * Create cipher key with salt and password
@@ -119,7 +120,7 @@ public class MiniTLVCrypto implements Crypto {
 		Cipher cipher = Cipher.getInstance(AES_ALGORITHM);
 		cipher.init(Cipher.DECRYPT_MODE, key);
 
-		return cipher.doFinal(Arrays.copyOfRange(data, SALT_SIZE, data.length));
+		return cipher.doFinal(Arrays.copyOfRange(data, keyLength, data.length));
     }
 	
 	@Override
