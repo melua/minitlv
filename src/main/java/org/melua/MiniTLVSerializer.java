@@ -40,8 +40,65 @@ public class MiniTLVSerializer implements Serializer {
 	private final ByteArrayOutputStream innerStream = new ByteArrayOutputStream();
 	private final Map<byte[], byte[]> innerMap = new HashMap<>();
 	
+	private static final int UBYTE_MAXVALUE = 255;
+	private static final int USHORT_MAXVALUE = 65_535;
+	
 	protected MiniTLVSerializer(Converter converter) {
 		this.converter = converter;
+	}
+	
+	/**
+	 * Automatically add extra {@link #EXTENTED_BYTES} for 2 and 4-bytes type.
+	 * @param buffer to append
+	 * @param type to check
+	 */
+	private static void addExtendedType(ByteBuffer buffer, byte[] type) {
+		switch (type.length) {
+		default:
+			throw new IllegalArgumentException();
+		case INT_SIZE:
+			buffer.put(MiniTLV.EXTENTED_BYTES);
+		case SHORT_SIZE:
+			buffer.put(MiniTLV.EXTENTED_BYTES);
+		case BYTE_SIZE:
+		}
+	}
+	
+	/**
+	 * Automatically add extra {@link #EXTENTED_BYTES} for 2 and 4-bytes length.
+	 * @param buffer to append
+	 * @param length to check
+	 */
+	private static void addExtendedLength(ByteBuffer buffer, int length) {
+		if (length > UBYTE_MAXVALUE) {
+			buffer.put(MiniTLV.EXTENTED_BYTES);
+			if (length > USHORT_MAXVALUE) {
+				buffer.put(MiniTLV.EXTENTED_BYTES);
+			}
+		}
+	}
+	
+	/**
+	 * Create the shortest buffer from the given integer.
+	 * @param value
+	 * @return byte array
+	 */
+	private static byte[] minimalBuffer(int value) {
+		ByteBuffer buffer = ByteBuffer.allocate(INT_SIZE);
+		if (value > UBYTE_MAXVALUE) {
+			if (value > USHORT_MAXVALUE) {
+				buffer.putInt(value);
+			} else {
+				buffer.putShort((short) value);
+			}
+		} else {
+			buffer.put((byte) value);
+		}
+		
+		buffer.flip();
+		byte[] result = new byte[buffer.limit()];
+		buffer.get(result, 0, buffer.limit());
+		return result;
 	}
 	
 	/**
@@ -77,17 +134,21 @@ public class MiniTLVSerializer implements Serializer {
 		 * Prepare type and add extended marks if necessary
 		 */
 		ByteBuffer tbuffer = ByteBuffer.allocate(EXT_MAXSIZE + INT_SIZE);
-		MiniTLV.addExtendedType(tbuffer, type);
+		addExtendedType(tbuffer, type);
 		tbuffer.put(type);
-		byte[] givenType = MiniTLV.minimalBytes(tbuffer);
+		tbuffer.flip();
+		byte[] givenType = new byte[tbuffer.limit()];
+		tbuffer.get(givenType, 0, tbuffer.limit());
 		
 		/*
 		 * Prepare length and add extended marks if necessary
 		 */
 		ByteBuffer lbuffer = ByteBuffer.allocate(EXT_MAXSIZE + INT_SIZE);
-		MiniTLV.addExtendedLength(lbuffer, value.length);
-		lbuffer.put(MiniTLV.minimalBytes(MiniTLV.minimalBuffer(value.length)));
-		byte[] length = MiniTLV.minimalBytes(lbuffer);
+		addExtendedLength(lbuffer, value.length);
+		lbuffer.put(minimalBuffer(value.length));
+		lbuffer.flip();
+		byte[] length = new byte[lbuffer.limit()];
+		lbuffer.get(length, 0, lbuffer.limit());
 		
 		/*
 		 * Create Type-Length-Value with calculated size

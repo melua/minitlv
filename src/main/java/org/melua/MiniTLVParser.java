@@ -27,6 +27,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.StreamCorruptedException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +42,39 @@ public class MiniTLVParser implements Parser {
 	
 	protected MiniTLVParser(Converter converter) {
 		this.converter = converter;
+	}
+	
+	/**
+	 * Read the given stream and extract type and length
+	 * according to the extra {@link #EXTENTED_BYTES}.
+	 * @param stream to read
+	 * @return byte array
+	 * @throws IOException
+	 */
+	private static byte[] getBuffer(DataInputStream stream) throws IOException {
+		reading:
+		for(int bytes = 1; stream.available() >= bytes; bytes *= 2) {
+			int input = stream.readByte();
+			if (input != MiniTLV.EXTENTED_BYTES) {
+				ByteBuffer buffer = ByteBuffer.allocate(INT_SIZE);
+				buffer.put((byte) input);
+				switch (bytes) {
+				default:
+					break reading;
+				case INT_SIZE:
+					buffer.putShort((short) stream.readShort());
+				case SHORT_SIZE:
+					buffer.put((byte) stream.readByte());
+				case BYTE_SIZE:
+				}
+				
+				buffer.flip();
+				byte[] result = new byte[buffer.limit()];
+				buffer.get(result, 0, buffer.limit());
+				return result;
+			}
+		}
+		throw new StreamCorruptedException();
 	}
 	
 	@Override
@@ -76,12 +111,12 @@ public class MiniTLVParser implements Parser {
 				/*
 				 * Read 1st byte or next 2, 4-bytes if extended
 				 */
-				int currentType = getConverter().convertToInt(MiniTLV.minimalBytes(MiniTLV.getBuffer(stream)));
+				int currentType = getConverter().convertToInt(getBuffer(stream));
 				
 				/*
 				 * Read 1st byte or next 2, 4-bytes if extended
 				 */
-				int length = getConverter().convertToInt(MiniTLV.minimalBytes(MiniTLV.getBuffer(stream)));
+				int length = getConverter().convertToInt(getBuffer(stream));
 				
 				/*
 				 * Read or skip value
@@ -128,12 +163,12 @@ public class MiniTLVParser implements Parser {
 				/*
 				 * Read 1st byte or next 2, 4-bytes if extended
 				 */
-				int type = getConverter().convertToInt(MiniTLV.minimalBytes(MiniTLV.getBuffer(stream)));
+				int type = getConverter().convertToInt(getBuffer(stream));
 
 				/*
 				 * Read 1st byte or next 2, 4-bytes if extended
 				 */
-				int length = getConverter().convertToInt(MiniTLV.minimalBytes(MiniTLV.getBuffer(stream)));
+				int length = getConverter().convertToInt(getBuffer(stream));
 
 				/*
 				 * Read or skip value
