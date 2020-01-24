@@ -51,7 +51,7 @@ public class MiniTLVParser implements Parser {
 	 * @return byte array
 	 * @throws IOException
 	 */
-	private static byte[] getBuffer(DataInputStream stream) throws IOException {
+	private static byte[] getBytes(DataInputStream stream) throws IOException {
 		reading:
 		for(int bytes = 1; stream.available() >= bytes; bytes *= 2) {
 			int input = stream.readByte();
@@ -111,12 +111,12 @@ public class MiniTLVParser implements Parser {
 				/*
 				 * Read 1st byte or next 2, 4-bytes if extended
 				 */
-				int currentType = getConverter().convertToInt(getBuffer(stream));
+				int currentType = getConverter().convertToInt(getBytes(stream));
 				
 				/*
 				 * Read 1st byte or next 2, 4-bytes if extended
 				 */
-				int length = getConverter().convertToInt(getBuffer(stream));
+				int length = getConverter().convertToInt(getBytes(stream));
 				
 				/*
 				 * Read or skip value
@@ -163,12 +163,12 @@ public class MiniTLVParser implements Parser {
 				/*
 				 * Read 1st byte or next 2, 4-bytes if extended
 				 */
-				int type = getConverter().convertToInt(getBuffer(stream));
+				int type = getConverter().convertToInt(getBytes(stream));
 
 				/*
 				 * Read 1st byte or next 2, 4-bytes if extended
 				 */
-				int length = getConverter().convertToInt(getBuffer(stream));
+				int length = getConverter().convertToInt(getBytes(stream));
 
 				/*
 				 * Read or skip value

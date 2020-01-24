@@ -79,11 +79,11 @@ public class MiniTLVSerializer implements Serializer {
 	}
 	
 	/**
-	 * Create the shortest buffer from the given integer.
+	 * Create the shortest byte array from the given integer.
 	 * @param value
 	 * @return byte array
 	 */
-	private static byte[] minimalBuffer(int value) {
+	private static byte[] minimalBytes(int value) {
 		ByteBuffer buffer = ByteBuffer.allocate(INT_SIZE);
 		if (value > UBYTE_MAXVALUE) {
 			if (value > USHORT_MAXVALUE) {
@@ -145,7 +145,7 @@ public class MiniTLVSerializer implements Serializer {
 		 */
 		ByteBuffer lbuffer = ByteBuffer.allocate(EXT_MAXSIZE + INT_SIZE);
 		addExtendedLength(lbuffer, value.length);
-		lbuffer.put(minimalBuffer(value.length));
+		lbuffer.put(minimalBytes(value.length));
 		lbuffer.flip();
 		byte[] length = new byte[lbuffer.limit()];
 		lbuffer.get(length, 0, lbuffer.limit());
